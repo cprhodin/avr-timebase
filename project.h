@@ -32,4 +32,14 @@ typedef unsigned int  uint_t;
 #define GPFLAG6 (GPIOR0), (6)
 #define GPFLAG7 (GPIOR0), (7)
 
+//
+// timebase timer, 0, 1 or 2 (only 1 is extensively tested)
+//
+#define TBTIMER 1
+
+//
+// timebase counter size in bits, either 16 or 32
+//
+#define TBSIZE 32
+
 #endif // _PROJECT_H_

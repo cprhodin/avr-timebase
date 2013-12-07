@@ -1,10 +1,8 @@
-#include <avr/pgmspace.h>
 #include <util/atomic.h>
-#include <stdio.h>
-#include <ctype.h>
 
 #include "project.h"
 #include "timer1.h"
+#include "timer.h"
 
 int main(void)
 {
@@ -12,6 +10,7 @@ int main(void)
     ATOMIC_BLOCK(ATOMIC_FORCEON)
     {
         timer1_init();
+        timebase_init();
     }
     // interrupts are enabled
 
