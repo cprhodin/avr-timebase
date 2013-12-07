@@ -3,6 +3,7 @@
 #include "project.h"
 #include "timer1.h"
 #include "timer.h"
+#include "tick.h"
 
 int main(void)
 {
@@ -11,6 +12,7 @@ int main(void)
     {
         timer1_init();
         timebase_init();
+        tick_init();
     }
     // interrupts are enabled
 
