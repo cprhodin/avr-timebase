@@ -4,6 +4,7 @@
 #include "timer1.h"
 #include "timer.h"
 #include "tick.h"
+#include "dds.h"
 
 int main(void)
 {
@@ -13,6 +14,7 @@ int main(void)
         timer1_init();
         timebase_init();
         tick_init();
+        dds_init();
     }
     // interrupts are enabled
 
