@@ -23,7 +23,7 @@ typedef unsigned int  uint_t;
 #define EVENTS GPIOR0
 
 
-#define GPFLAG0 100,0
+#define GPFLAG0 (GPIOR0), (0)
 #define GPFLAG1 (GPIOR0), (1)
 #define GPFLAG2 (GPIOR0), (2)
 #define GPFLAG3 (GPIOR0), (3)
@@ -36,6 +36,7 @@ typedef unsigned int  uint_t;
 // timebase timer, 0, 1 or 2 (only 1 is extensively tested)
 //
 #define TBTIMER 1
+#define TBTIMER_PRESCALER 64
 
 //
 // timebase counter size in bits, either 16 or 32

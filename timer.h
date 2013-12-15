@@ -37,19 +37,20 @@
 #define TIMEBASE_MAX_LATENCY (1L<<(TBSIZE-1))
 #define TIMEBASE_MAX_DELAY (TIMEBASE_MAX_LATENCY-2)
 
-
 //
 // types and constants to support the timebase timer
 //
 #if   TBTIMER == 0 || TBTIMER == 2
+#define TBTIMER_MOD (256)
 #define tbtimer_t uint8_t
 #define tbtimer_st int8_t
-#define TBTIMER_MAX_LATENCY (128)
 #elif TBTIMER == 1
+#define TBTIMER_MOD (65536)
 #define tbtimer_t uint16_t
 #define tbtimer_st int16_t
-#define TBTIMER_MAX_LATENCY (32768)
 #endif
+
+#define TBTIMER_MAX_LATENCY (TBTIMER_MOD / 2)
 #define TBTIMER_MAX_DELAY (TBTIMER_MAX_LATENCY-2)
 
 #define _TBJOIN2(a,b) a##b
@@ -98,6 +99,8 @@ struct timer_event {
         (a)->tbtick = (b);                                                     \
         (a)->handler = (c);                                                    \
     } while (0)
+
+#define F_TBTIMER (F_CPU / TBTIMER_PRESCALER)
 
 #if TBTIMER == 1
 #define TBTICKS_FROM_MS(a) ((tbtick_t) (a) * 250)
