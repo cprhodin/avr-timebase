@@ -102,11 +102,10 @@ struct timer_event {
 
 #define F_TBTIMER (F_CPU / TBTIMER_PRESCALER)
 
+#define TBTICKS_FROM_MS(a) ((tbtick_t) (a) * (F_TBTIMER / 1000))
 #if TBTIMER == 1
-#define TBTICKS_FROM_MS(a) ((tbtick_t) (a) * 250)
 #define TBTICKS_FROM_US(a) (((a) + 3) >> 2)
 #else
-#define TBTICKS_FROM_MS(a) ((tbtick_t) (a) * 125)
 #define TBTICKS_FROM_US(a) (((a) + 7) >> 3)
 #endif
 
