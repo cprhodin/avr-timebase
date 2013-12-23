@@ -2,14 +2,18 @@
 #include <stdio.h>
 
 #include "project.h"
-#include "timer1.h"
 #include "timer.h"
-#include "tick.h"
 #include "dds.h"
 
 #include "mathops.h"
 
-void uart_init(void);
+extern void timer1_init(void);
+extern void tick_init(void);
+extern void uart_init(void);
+
+//home/chris/bin/atmel/lib/gcc/avr/4.7.2/include
+//home/chris/bin/atmel/lib/gcc/avr/4.7.2/include-fixed
+//home/chris/bin/atmel/avr/include
 
 int main(void)
 {

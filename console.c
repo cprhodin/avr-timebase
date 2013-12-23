@@ -36,9 +36,9 @@ ISR(USART_UDRE_vect)
     }
 }
 
-static int uart_putchar(char c, FILE * stream)
+static int console_putchar(char c, FILE * stream)
 {
-    if (c == '\n') uart_putchar('\r', stream);
+    if (c == '\n') console_putchar('\r', stream);
 
     while (rb_is_full(&tx_rb));
 
@@ -68,7 +68,7 @@ ISR(USART_RX_vect)
     if (rb_is_full(&rx_rb)) UCSR0B &= ~_BV(RXCIE0);
 }
 
-static int uart_getchar(FILE * stream)
+static int console_getchar(FILE * stream)
 {
     char c;
 
@@ -90,7 +90,7 @@ static int uart_getchar(FILE * stream)
 }
 
 
-static FILE mystdout = FDEV_SETUP_STREAM(uart_putchar, uart_getchar, _FDEV_SETUP_RW);
+static FILE console = FDEV_SETUP_STREAM(console_putchar, console_getchar, _FDEV_SETUP_RW);
 
 
 void uart_init(void)
@@ -109,9 +109,9 @@ void uart_init(void)
     UCSR0A = 0;
     UCSR0C = (1<<USBS0)|(3<<UCSZ00);
 
-    stdin  = &mystdout;
-    stdout = &mystdout;
-    stderr = &mystdout;
+    stdin  = &console;
+    stdout = &console;
+    stderr = &console;
 
     rb_init(&rx_rb, rx_buffer, sizeof(rx_buffer));
     rb_init(&tx_rb, tx_buffer, sizeof(tx_buffer));

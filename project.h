@@ -1,18 +1,7 @@
 #ifndef _PROJECT_H_
 #define _PROJECT_H_
 
-typedef signed char int8_t;
-typedef signed int  int16_t;
-typedef signed long int32_t;
-
-typedef signed int  int_t;
-
-typedef unsigned char uint8_t;
-typedef unsigned int  uint16_t;
-typedef unsigned long uint32_t;
-
-typedef unsigned int  uint_t;
-
+#include <stdint.h>
 
 #define reg_clear_bit(a,b) do {(a) &= ~_BV(b);} while (0)
 #define reg_set_bit(a,b) do {(a) |= _BV(b);} while (0)
