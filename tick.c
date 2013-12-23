@@ -4,7 +4,6 @@
 #include "project.h"
 
 #include "timer.h"
-#include "tick.h"
 
 
 TIMER_EVENT(tick_timer_event, tick_timer_handler);

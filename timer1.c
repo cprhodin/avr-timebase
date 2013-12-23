@@ -1,7 +1,6 @@
 #include <avr/io.h>
 
 #include "project.h"
-#include "timer1.h"
 
 #if   TBTIMER_PRESCALER == 1
 #define TBTIMER_CS 1
