@@ -17,21 +17,75 @@
 #define spi_disable() do {SPCR = SPI_DISABLED;} while (0)
 
 
-void dds_set(uint32_t delta)
-{
-    // enable SPI
-    spi_enable();
+/*
+  aa:   6e bd           out     0x2e, r22
+  ac:   0d b4           in      r0, 0x2d
+  ae:   07 fe           sbrs    r0, 7
+  b0:   fd cf           rjmp    .-6
+  aa:   6e bd           out     0x2e, r23
+  ac:   0d b4           in      r0, 0x2d
+  ae:   07 fe           sbrs    r0, 7
+  b0:   fd cf           rjmp    .-6
+  aa:   6e bd           out     0x2e, r24
+  ac:   0d b4           in      r0, 0x2d
+  ae:   07 fe           sbrs    r0, 7
+  b0:   fd cf           rjmp    .-6
+  aa:   6e bd           out     0x2e, r25
+  ac:   0d b4           in      r0, 0x2d
+  ae:   07 fe           sbrs    r0, 7
+  b0:   fd cf           rjmp    .-6
+  aa:   6e bd           out     0x2e, r1
+  ac:   0d b4           in      r0, 0x2d
+  ae:   07 fe           sbrs    r0, 7
+  b0:   fd cf           rjmp    .-6
+  e8:   84 e0           ldi     r22, 0x04
+  ea:   83 b9           out     0x03, r22
+  ec:   83 b9           out     0x03, r22
+*/
 
+
+void dds_set2(uint32_t delta)
+{
     SPDR = (uint8_t) delta;
     while (!test_bit(SPSR, SPIF));
 
     SPDR = (uint8_t) (delta >> 8);
+
     while (!test_bit(SPSR, SPIF));
 
     SPDR = (uint8_t) (delta >> 16);
     while (!test_bit(SPSR, SPIF));
 
     SPDR = (uint8_t) (delta >> 24);
+    while (!test_bit(SPSR, SPIF));
+
+    SPDR = 0;
+    while (!test_bit(SPSR, SPIF));
+
+    // pulse FQ_UD high
+    PINB = DDS_FQ_UD;
+    PINB = DDS_FQ_UD;
+}
+
+void dds_set(uint32_t freq)
+{
+    unsigned long long tmp = (unsigned long long) freq << 32;
+    uint32_t delta = (uint32_t) (tmp / F_DDS);
+    uint8_t * p = (uint8_t *) &delta;
+
+    // enable SPI
+    spi_enable();
+
+    SPDR = *p++;
+    while (!test_bit(SPSR, SPIF));
+
+    SPDR = *p++;
+    while (!test_bit(SPSR, SPIF));
+
+    SPDR = *p++;
+    while (!test_bit(SPSR, SPIF));
+
+    SPDR = *p++;
     while (!test_bit(SPSR, SPIF));
 
     SPDR = 0;
