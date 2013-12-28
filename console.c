@@ -1,54 +1,81 @@
-#include <avr/io.h>
+#include <stdio.h>
 #include <avr/interrupt.h>
 #include <util/atomic.h>
-#include <stdio.h>
 
 #include "project.h"
 #include "ring_buffer.h"
 
-uint8_t tx_buffer[32];
-uint8_t rx_buffer[32];
-struct ring_buffer tx_rb;
-struct ring_buffer rx_rb;
+#ifndef TX_BUF_SIZE
+#define TX_BUF_SIZE (32)
+#endif
+
+#ifndef RX_BUF_SIZE
+#define RX_BUF_SIZE (32)
+#endif
+
+#ifndef CONSOLE_BAUDRATE
+#define CONSOLE_BAUDRATE (250000L)
+#endif
+
+static uint8_t tx_buffer[TX_BUF_SIZE];
+static uint8_t rx_buffer[RX_BUF_SIZE];
+static struct ring_buffer tx_rb;
+static struct ring_buffer rx_rb;
 
 
 //
-// USART transmit
+// USART interrupt handlers
 //
 
+// Tx complete
 ISR(USART_TX_vect)
 {
     UCSR0B &= ~_BV(TXCIE0);
-    reg_clear_bit(GPIOR0, 1);
-    PORTB &= ~0x1;
+    set_gpflag(TXIDLE);
 }
 
+// Tx data register empty
 ISR(USART_UDRE_vect)
 {
-    // move a character from the buffer to the USART
-    rb_get(&tx_rb, &UDR0);
-
-    // disable the interrupt if the buffer is empty
-    if (rb_is_empty(&tx_rb))
+    // move byte from buffer to USART
+    if (!rb_get(&tx_rb, &UDR0))
     {
+        // disable interrupt if buffer becomes empty
         UCSR0B &= ~_BV(UDRIE0);
         UCSR0B |= _BV(TXCIE0);
     }
 }
 
-static int console_putchar(char c, FILE * stream)
+// Rx complete
+ISR(USART_RX_vect)
 {
-    if (c == '\n') console_putchar('\r', stream);
+    // move byte from USART to buffer
+    if (!rb_put(&rx_rb, &UDR0)) {
+        // disable interrupt if buffer becomes full
+        UCSR0B &= ~_BV(RXCIE0);
+    }
+}
 
+
+//
+// putchar
+//
+
+static int console_putchar(char c, struct __file * stream)
+{
+    // handle NL to CR-NL expansion
+    if (test_gpflag(ONLCR) && (c == '\n')) console_putchar('\r', stream);
+
+    // wait for Tx buffer not full
     while (rb_is_full(&tx_rb));
 
+    // queue byte
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
         rb_put(&tx_rb, (uint8_t *) &c);
         UCSR0B |= _BV(UDRIE0);
         UCSR0B &= ~_BV(TXCIE0);
-        reg_set_bit(GPIOR0, 1);
-        PORTB |= 0x1;
+        clr_gpflag(TXIDLE);
     }
 
     return 0;
@@ -56,63 +83,74 @@ static int console_putchar(char c, FILE * stream)
 
 
 //
-// USART receive
+// getchar
 //
 
-ISR(USART_RX_vect)
+static int console_getchar(struct __file * stream)
 {
-    // move a character from the USART to the buffer
-    rb_put(&rx_rb, &UDR0);
+    uint8_t c;
 
-    // disable the interrupt if the buffer is full
-    if (rb_is_full(&rx_rb)) UCSR0B &= ~_BV(RXCIE0);
-}
-
-static int console_getchar(FILE * stream)
-{
-    char c;
-
-#if 1
+#if 1 // O_NONBLOCK
     if (rb_is_empty(&rx_rb)) return _FDEV_EOF;
 #else
+    // wait for Rx buffer not empty
     while (rb_is_empty(&rx_rb));
 #endif
 
+    // dequeue byte
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
     {
-        rb_get(&rx_rb, (uint8_t *) &c);
+        rb_get(&rx_rb, &c);
         UCSR0B |= _BV(RXCIE0);
     }
 
-    if (c == '\r') c = '\n';
+    // handle CR to NL translation
+    if (test_gpflag(ICRNL) && (c == '\r')) c = '\n';
+
+    // handle echo
+    if (test_gpflag(ECHO)) console_putchar(c, stream);
 
     return c;
 }
 
 
-static FILE console = FDEV_SETUP_STREAM(console_putchar, console_getchar, _FDEV_SETUP_RW);
+#define CONSOLE_UBRR ((F_CPU + (CONSOLE_BAUDRATE / 2)) /                       \
+                      (CONSOLE_BAUDRATE * 16) - 1)                             \
+
+static FILE console = FDEV_SETUP_STREAM(console_putchar, console_getchar,
+                                        _FDEV_SETUP_RW);
 
 
-void uart_init(void)
+//
+// must be called with interrupts disabled
+//
+void console_init(void)
 {
-    uint16_t ubrr = 3;
+    // initialize the transmit and receive buffers
+    rb_init(&tx_rb, tx_buffer, sizeof(tx_buffer));
+    rb_init(&rx_rb, rx_buffer, sizeof(rx_buffer));
 
-    DDRB |= 0x1;
+    // connect standard i/o to the serial console
+    stdin = &console;
+    stdout = &console;
+    stderr = &console;
+
+    // set the terminal attributes
+    set_gpflag(ECHO); // enable input echo
+    set_gpflag(ONLCR); // translate NL to CR-NL on output
+    set_gpflag(ICRNL); // translate CR to NL on input
+
+    // transmitter idle
+    set_gpflag(TXIDLE);
 
     /* Set baud rate */
-    UBRR0 = ubrr;
+    UBRR0 = CONSOLE_UBRR;
 
     /* Enable receiver and transmitter */
     UCSR0B = _BV(RXEN0) | _BV(TXEN0) | _BV(RXCIE0);
 
     /* Set frame format: 8data, 2stop bit */
     UCSR0A = 0;
-    UCSR0C = (1<<USBS0)|(3<<UCSZ00);
-
-    stdin  = &console;
-    stdout = &console;
-    stderr = &console;
-
-    rb_init(&rx_rb, rx_buffer, sizeof(rx_buffer));
-    rb_init(&tx_rb, tx_buffer, sizeof(tx_buffer));
+    UCSR0C = (1 << USBS0) | (3 << UCSZ00);
 }
+

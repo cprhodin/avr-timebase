@@ -1,7 +1,6 @@
-#include <avr/io.h>
+#include <stdio.h>
 #include <avr/interrupt.h>
 #include <util/atomic.h>
-#include <stdio.h>
 
 #include "project.h"
 #include "timer.h"

@@ -20,7 +20,7 @@
  */
 
 
-void rb_init(struct ring_buffer * rb, uint8_t * p, size_t s)
+void rb_init(struct ring_buffer * const rb, uint8_t * p, size_t s)
 {
     rb->start = p;
     rb->limit = p + s;
@@ -29,18 +29,24 @@ void rb_init(struct ring_buffer * rb, uint8_t * p, size_t s)
 }
 
 
-uint8_t rb_put(struct ring_buffer * rb, volatile uint8_t const * const b)
+/*
+ * returns:
+ *
+ *   1 - byte queued, buffer not full
+ *   0 - byte queued, buffer becomes full
+ *  -1 - byte not queued, buffer full
+ */
+int8_t rb_put(struct ring_buffer * const rb, volatile uint8_t const * const b)
 {
     uint8_t * put = rb->put;
-    uint8_t * get = rb->get;
 
     /* return if buffer full */
-    if (rb_is_full(rb))
-        return 0;
+    if (put == (uint8_t *) rb)
+        return -1;
 
     /* fix get pointer if buffer empty */
-    if (rb_is_empty(rb))
-        get = put;
+    if (rb->get == (uint8_t *) rb)
+        rb->get = put;
 
     /* put byte into buffer */
     *put++ = *b;
@@ -49,29 +55,35 @@ uint8_t rb_put(struct ring_buffer * rb, volatile uint8_t const * const b)
     if (put == rb->limit)
         put = rb->start;
 
-    /* identify buffer full */
-    if (put == get)
-        put = (uint8_t *) rb;
+    /* identify buffer becomes full */
+    if (put == rb->get) {
+        rb->put = (uint8_t *) rb;
+        return 0;
+    }
 
     rb->put = put;
-    rb->get = get;
-
     return 1;
 }
 
 
-uint8_t rb_get(struct ring_buffer * rb, volatile uint8_t * const b)
+/*
+ * returns:
+ *
+ *   1 - byte dequeued, buffer not empty
+ *   0 - byte dequeued, buffer becomes empty
+ *  -1 - byte not dequeued, buffer empty
+ */
+int8_t rb_get(struct ring_buffer * const rb, volatile uint8_t * const b)
 {
-    uint8_t * put = rb->put;
     uint8_t * get = rb->get;
 
-    /* return if buffer empty */
-    if (rb_is_empty(rb))
-        return 0;
+    /* handle buffer empty */
+    if (get == (uint8_t *) rb)
+        return -1;
 
     /* fix put pointer if buffer full */
-    if (rb_is_full(rb))
-        put = get;
+    if (rb->put == (uint8_t *) rb)
+        rb->put = get;
 
     /* get byte from buffer */
     *b = *get++;
@@ -80,12 +92,12 @@ uint8_t rb_get(struct ring_buffer * rb, volatile uint8_t * const b)
     if (get == rb->limit)
         get = rb->start;
 
-    /* identify buffer empty */
-    if (get == put)
-        get = (uint8_t *) rb;
+    /* handle buffer becomes empty */
+    if (get == rb->put) {
+        rb->get = (uint8_t *) rb;
+        return 0;
+    }
 
-    rb->put = put;
     rb->get = get;
-
     return 1;
 }

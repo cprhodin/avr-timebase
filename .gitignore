@@ -1,2 +1,4 @@
 *.o
 avr-timebase
+avr-timebase.dump
+

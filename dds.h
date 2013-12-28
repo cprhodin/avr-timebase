@@ -68,7 +68,7 @@ static inline void dds_load(uint32_t tuning_word, uint8_t control)
           [spi_disabled] "M" (SPI_DISABLED),
           [dds_fq_ud] "M" (DDS_FQ_UD),
           [spif] "M" (SPIF)
-        :
+        : "r0"
     );
 }
 

@@ -1,6 +1,6 @@
 
 [indentation]
-indent_width=4
+indent_width=8
 indent_type=0
 indent_hard_tab_width=8
 detect_indent=false
@@ -18,22 +18,24 @@ long_line_behaviour=1
 long_line_column=72
 
 [files]
-current_page=14
-FILE_NAME_0=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/project.h;0;4
-FILE_NAME_1=282;Markdown;0;16;0;1;0;/home/chris/projects/avr-timebase/README.md;0;4
-FILE_NAME_2=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/tick.c;0;4
+current_page=16
+FILE_NAME_0=62;C;0;16;0;1;0;/home/chris/projects/avr-timebase/project.h;0;4
+FILE_NAME_1=302;Markdown;0;16;0;1;0;/home/chris/projects/avr-timebase/README.md;0;4
+FILE_NAME_2=566;C;0;16;0;1;0;/home/chris/projects/avr-timebase/tick.c;0;4
 FILE_NAME_3=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/tick.h;0;4
 FILE_NAME_4=3636;C;0;16;0;1;0;/home/chris/projects/avr-timebase/timer.c;0;4
 FILE_NAME_5=2249;C;0;16;0;1;0;/home/chris/projects/avr-timebase/timer.h;0;4
 FILE_NAME_6=1668;C;0;16;0;1;0;/home/chris/projects/avr-timebase/timer1.c;0;4
-FILE_NAME_7=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/timer1.h;0;4
-FILE_NAME_8=373;C;0;16;0;1;0;/home/chris/projects/avr-timebase/main.c;0;4
-FILE_NAME_9=3184;C;0;16;0;1;0;/home/chris/projects/avr-timebase/mathops.h;0;4
-FILE_NAME_10=1830;C;0;16;0;1;0;/home/chris/projects/avr-timebase/usart.c;0;4
-FILE_NAME_11=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/dds.c;0;4
-FILE_NAME_12=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/dds.h;0;4
-FILE_NAME_13=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/ring_buffer.c;0;4
-FILE_NAME_14=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/ring_buffer.h;0;4
+FILE_NAME_7=286;C;0;16;0;1;0;/home/chris/projects/avr-timebase/main.c;0;4
+FILE_NAME_8=3184;C;0;16;0;1;0;/home/chris/projects/avr-timebase/mathops.h;0;4
+FILE_NAME_9=2107;C;0;16;0;1;0;/home/chris/projects/avr-timebase/usart.c;0;4
+FILE_NAME_10=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/dds.c;0;4
+FILE_NAME_11=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/dds.h;0;4
+FILE_NAME_12=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/ring_buffer.c;0;4
+FILE_NAME_13=0;C;0;16;0;1;0;/home/chris/projects/avr-timebase/ring_buffer.h;0;4
+FILE_NAME_14=0;C;0;16;0;1;0;/home/chris/bin/atmel/avr-libc-1.8.0/libc/stdio/printf.c;0;4
+FILE_NAME_15=1828;C;0;16;0;1;0;/home/chris/bin/atmel/avr-libc-1.8.0/libc/stdio/printf_p.c;0;4
+FILE_NAME_16=0;C;0;16;0;1;0;/home/chris/bin/atmel/avr-libc-1.8.0/libc/stdio/vfprintf.c;0;4
 
 [VTE]
 last_dir=/home/chris

@@ -1,5 +1,3 @@
-#include <avr/io.h>
-
 #include "project.h"
 
 #if   TBTIMER_PRESCALER == 1
